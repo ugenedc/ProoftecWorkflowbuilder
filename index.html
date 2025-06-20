@@ -299,7 +299,14 @@
             font-size: 16px;
             font-weight: 500;
             color: #262626;
+            margin: 0 0 4px 0;
+        }
+
+        .workflow-description {
+            font-size: 13px;
+            color: #6c757d;
             margin: 0;
+            line-height: 1.4;
         }
 
         .workflow-actions {
@@ -716,6 +723,7 @@
                 {
                     id: 1,
                     name: "Check-in",
+                    description: "Initial vehicle inspection and customer information collection process",
                     active: true,
                     components: [
                         { component: 'customerInfo', name: 'Customer Information' },
@@ -729,6 +737,7 @@
                 {
                     id: 2,
                     name: "Check-out",
+                    description: "Final inspection and customer handover workflow",
                     active: false,
                     components: [
                         { component: 'finalInspection', name: 'Final Inspection' },
@@ -742,6 +751,7 @@
                 {
                     id: 3,
                     name: "Free photos",
+                    description: "Quick exterior photography workflow for basic documentation",
                     active: true,
                     components: [
                         { component: 'frontExterior', name: 'Front Exterior' },
@@ -776,23 +786,19 @@
 
         function createWorkflowItem(workflow) {
             const components = workflow.components || [];
-            const componentTags = components.slice(0, 8).map(comp => {
-                const data = componentData[comp.component];
-                return data ? `<span class="component-tag">${data.name}</span>` : '';
-            }).join('');
-            
-            const moreCount = components.length > 8 ? components.length - 8 : 0;
             const updatedDate = new Date(workflow.updatedAt).toLocaleDateString();
             const isActive = workflow.active;
             const statusClass = isActive ? 'active' : 'disabled';
             const statusText = isActive ? 'Active' : 'Disabled';
             const itemClass = isActive ? '' : ' inactive';
+            const description = workflow.description || '';
             
             return `
                 <div class="workflow-item${itemClass}" onclick="editWorkflow(${workflow.id})">
                     <div class="workflow-header">
                         <div class="workflow-title-section">
                             <h3 class="workflow-title">${workflow.name}</h3>
+                            ${description ? `<p class="workflow-description">${description}</p>` : ''}
                         </div>
                         <div class="workflow-controls" onclick="event.stopPropagation()">
                             <span class="workflow-status ${statusClass}">${statusText}</span>
@@ -808,11 +814,7 @@
                         </div>
                     </div>
                     <div class="workflow-meta">
-                        ${components.length} components • Updated ${updatedDate}
-                    </div>
-                    <div class="workflow-components">
-                        ${componentTags}
-                        ${moreCount > 0 ? `<span class="component-tag">+${moreCount} more</span>` : ''}
+                        ${components.length} step${components.length !== 1 ? 's' : ''} • Updated ${updatedDate}
                     </div>
                 </div>
             `;
