@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f7fa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .app-sidebar {
+            width: 200px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 20px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-right: 3px solid #3498db;
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sign-out-btn {
+            width: 100%;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .sign-out-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .app-main {
+            flex: 1;
+            background-color: #f5f7fa;
+            overflow-y: auto;
+        }
+
+        .app-header {
+            background: white;
+            padding: 24px 40px;
+            border-bottom: 1px solid #e1e5e9;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .app-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .settings-layout {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 40px;
+            gap: 32px;
+        }
+
+        .settings-nav {
+            width: 200px;
+            flex-shrink: 0;
+        }
+
+        .settings-nav-item {
+            display: block;
+            padding: 12px 16px;
+            color: #5f6368;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .settings-nav-item:hover {
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+        }
+
+        .settings-nav-item.active {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            border-left: 3px solid #1a73e8;
+            padding-left: 13px;
+        }
+
+        .settings-content {
+            flex: 1;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f0f0f0;
+        }
+
+        .content-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            letter-spacing: -0.2px;
+            margin: 0;
+        }
+
+        .create-btn {
+            background: #34a853;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(52, 168, 83, 0.3);
+        }
+
+        .create-btn:hover {
+            background: #2d7d41;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(52, 168, 83, 0.4);
+        }
+
+        .workflows-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .workflow-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 24px;
+            margin-bottom: 0;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .workflow-item:last-child {
+            border-bottom: none;
+        }
+
+        .workflow-item:hover {
+            background-color: #f8f9fa;
+            border-color: #1a73e8;
+        }
+
+        .workflow-item.inactive {
+            opacity: 0.6;
+            background-color: #fafafa;
+        }
+
+        .workflow-item.inactive .workflow-title {
+            color: #8c8c8c;
+        }
+
+        .workflow-item.inactive .workflow-meta {
+            color: #bfbfbf;
+        }
+
+        .workflow-item.inactive .component-tag {
+            background: #f0f0f0;
+            color: #bfbfbf;
+            border-color: #e8e8e8;
+        }
+
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .workflow-title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .workflow-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .workflow-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .workflow-status.active {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .workflow-status.disabled {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .workflow-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #262626;
+            margin: 0;
+        }
+
+        .workflow-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 1;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: 1px solid #dadce0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            color: #1a73e8;
+            border-color: #1a73e8;
+            background: #e8f0fe;
+        }
+
+        .btn-edit:hover {
+            background: #1a73e8;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(26, 115, 232, 0.2);
+        }
+
+        .btn-delete {
+            color: #ea4335;
+            border-color: #ea4335;
+            background: #fce8e6;
+        }
+
+        .btn-delete:hover {
+            background: #ea4335;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(234, 67, 53, 0.2);
+        }
+
+        .workflow-meta {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-bottom: 8px;
+        }
+
+        .workflow-components {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .component-tag {
+            background: #f6f6f6;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 2px 6px;
+            font-size: 11px;
+            color: #595959;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #1890ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 24px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0;
+            color: #262626;
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+            color: #595959;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            padding: 6px 16px;
+            border-radius: 6px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .modal-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .modal-btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .workflow-count {
+            color: #5f6368;
+            font-size: 14px;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .search-box {
+            background: white;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            width: 280px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="app-sidebar">
+            <div class="app-logo">
+                <div class="logo-icon">📋</div>
+                <span class="logo-text">PROOFTEC</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>Scans</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>Reports</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Options</span>
+                </a>
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">🔧</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="nav-footer">
+                <button class="sign-out-btn">Sign Out</button>
+            </div>
+        </nav>
+
+        <main class="app-main">
+            <div class="app-header">
+                <h1>Settings</h1>
+            </div>
+            
+            <div class="settings-layout">
+                <nav class="settings-nav">
+                    <a href="#" class="settings-nav-item">Account</a>
+                    <a href="#" class="settings-nav-item">Application</a>
+                    <a href="#" class="settings-nav-item">Locations</a>
+                    <a href="#" class="settings-nav-item">Users</a>
+                    <a href="#" class="settings-nav-item active">Scan Process</a>
+                </nav>
+                
+                <div class="settings-content">
+                    <div class="content-header">
+                        <h2>Inspection Workflows</h2>
+                        <a href="workflow-editor.html" class="create-btn">+ Create Workflow</a>
+                    </div>
+
+                <div class="filters">
+                    <input type="text" class="search-box" placeholder="Search workflows..." id="searchBox">
+                </div>
+
+                <div class="workflow-count" id="workflowCount">
+                    Loading workflows...
+                </div>
+
+                <div class="workflows-list" id="workflowsList">
+                    <!-- Workflows will be loaded here -->
+                </div>
+
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <h3>No workflows found</h3>
+                    <p>Create your first workflow to get started with process automation.</p>
+                    <a href="workflow-editor.html" class="create-btn">+ Create New Workflow</a>
+                </div>
+            </div>
+        </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Activate Workflow</h3>
+            </div>
+            <div class="modal-body" id="modalBody">
+                This will turn this workflow on in the mobile app and be accessible by your users.
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn modal-btn-primary" onclick="confirmToggle()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Component data for display
+        const componentData = {
+            // Vehicle Information
+            customerInfo: { name: 'Customer Information', icon: 'U', color: '#1890ff' },
+            vehicleDetails: { name: 'Vehicle Details', icon: 'C', color: '#52c41a' },
+            vinNumber: { name: 'VIN Number', icon: '#', color: '#722ed1' },
+            licensePlate: { name: 'License Plate', icon: 'L', color: '#eb2f96' },
+            odometer: { name: 'Odometer Reading', icon: 'O', color: '#fa8c16' },
+            keyHandover: { name: 'Key Handover', icon: 'K', color: '#13c2c2' },
+            
+            // Exterior Views
+            frontExterior: { name: 'Front Exterior', icon: '↑', color: '#1890ff' },
+            leftSide: { name: 'Left Side', icon: '←', color: '#1890ff' },
+            rightSide: { name: 'Right Side', icon: '→', color: '#1890ff' },
+            rearExterior: { name: 'Rear Exterior', icon: '↓', color: '#1890ff' },
+            roofView: { name: 'Roof View', icon: '▲', color: '#1890ff' },
+            
+            // Wheels & Tires
+            frontLeftWheel: { name: 'Front Left Wheel', icon: 'W', color: '#faad14' },
+            frontRightWheel: { name: 'Front Right Wheel', icon: 'W', color: '#faad14' },
+            rearLeftWheel: { name: 'Rear Left Wheel', icon: 'W', color: '#faad14' },
+            rearRightWheel: { name: 'Rear Right Wheel', icon: 'W', color: '#faad14' },
+            spareWheel: { name: 'Spare Wheel', icon: 'W', color: '#faad14' },
+            
+            // Interior Front
+            dashboard: { name: 'Dashboard', icon: 'D', color: '#722ed1' },
+            frontLeftSeat: { name: 'Front Left Seat', icon: 'S', color: '#eb2f96' },
+            frontRightSeat: { name: 'Front Right Seat', icon: 'S', color: '#eb2f96' },
+            centerConsole: { name: 'Center Console', icon: 'C', color: '#722ed1' },
+            steeringWheel: { name: 'Steering Wheel', icon: 'S', color: '#52c41a' },
+            
+            // Interior Rear
+            rearLeftSeat: { name: 'Rear Left Seat', icon: 'S', color: '#eb2f96' },
+            rearRightSeat: { name: 'Rear Right Seat', icon: 'S', color: '#eb2f96' },
+            rearCenterSeat: { name: 'Rear Center Seat', icon: 'S', color: '#eb2f96' },
+            
+            // Storage Areas
+            gloveBox: { name: 'Glove Box', icon: 'B', color: '#13c2c2' },
+            centerStorage: { name: 'Center Storage', icon: 'B', color: '#13c2c2' },
+            doorPockets: { name: 'Door Pockets', icon: 'P', color: '#13c2c2' },
+            trunk: { name: 'Trunk/Boot', icon: 'T', color: '#13c2c2' },
+            
+            // Engine & Mechanical
+            engineBay: { name: 'Engine Bay', icon: 'E', color: '#fa541c' },
+            undercarriage: { name: 'Undercarriage', icon: 'U', color: '#fa541c' },
+            exhaust: { name: 'Exhaust System', icon: 'X', color: '#fa541c' },
+            
+            // Lights & Electronics
+            headlights: { name: 'Headlights', icon: 'H', color: '#faad14' },
+            taillights: { name: 'Taillights', icon: 'T', color: '#f5222d' },
+            indicators: { name: 'Indicators', icon: 'I', color: '#faad14' },
+            
+            // Damage Documentation
+            scratchAssessment: { name: 'Scratch Assessment', icon: 'A', color: '#f5222d' },
+            dentAssessment: { name: 'Dent Assessment', icon: 'A', color: '#f5222d' },
+            paintCondition: { name: 'Paint Condition', icon: 'P', color: '#f5222d' },
+            
+            // Process Steps
+            finalInspection: { name: 'Final Inspection', icon: '✓', color: '#52c41a' },
+            customerSignoff: { name: 'Customer Sign-off', icon: '✍', color: '#1890ff' },
+            keyReturn: { name: 'Key Return', icon: 'R', color: '#13c2c2' },
+            reportGeneration: { name: 'Report Generation', icon: 'R', color: '#722ed1' }
+        };
+
+        let allWorkflows = [];
+        let filteredWorkflows = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorkflows();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', filterWorkflows);
+        }
+
+        function loadWorkflows() {
+            allWorkflows = JSON.parse(localStorage.getItem('workflows') || '[]');
+            
+            // Add some sample workflows if none exist
+            if (allWorkflows.length === 0) {
+                allWorkflows = createSampleWorkflows();
+                localStorage.setItem('workflows', JSON.stringify(allWorkflows));
+            }
+            
+            filteredWorkflows = [...allWorkflows];
+            renderWorkflows();
+        }
+
+        function createSampleWorkflows() {
+            return [
+                {
+                    id: 1,
+                    name: "Check-in",
+                    active: true,
+                    components: [
+                        { component: 'customerInfo', name: 'Customer Information' },
+                        { component: 'vehicleDetails', name: 'Vehicle Details' },
+                        { component: 'odometer', name: 'Odometer Reading' },
+                        { component: 'keyHandover', name: 'Key Handover' }
+                    ],
+                    createdAt: new Date(Date.now() - 86400000).toISOString(),
+                    updatedAt: new Date(Date.now() - 3600000).toISOString()
+                },
+                {
+                    id: 2,
+                    name: "Check-out",
+                    active: false,
+                    components: [
+                        { component: 'finalInspection', name: 'Final Inspection' },
+                        { component: 'customerSignoff', name: 'Customer Sign-off' },
+                        { component: 'keyReturn', name: 'Key Return' },
+                        { component: 'reportGeneration', name: 'Report Generation' }
+                    ],
+                    createdAt: new Date(Date.now() - 172800000).toISOString(),
+                    updatedAt: new Date(Date.now() - 7200000).toISOString()
+                },
+                {
+                    id: 3,
+                    name: "Free photos",
+                    active: true,
+                    components: [
+                        { component: 'frontExterior', name: 'Front Exterior' },
+                        { component: 'leftSide', name: 'Left Side' },
+                        { component: 'rightSide', name: 'Right Side' },
+                        { component: 'rearExterior', name: 'Rear Exterior' }
+                    ],
+                    createdAt: new Date(Date.now() - 259200000).toISOString(),
+                    updatedAt: new Date(Date.now() - 10800000).toISOString()
+                }
+            ];
+        }
+
+        function renderWorkflows() {
+            const list = document.getElementById('workflowsList');
+            const emptyState = document.getElementById('emptyState');
+            const countElement = document.getElementById('workflowCount');
+            
+            countElement.textContent = `${filteredWorkflows.length} workflow${filteredWorkflows.length !== 1 ? 's' : ''}`;
+            
+            if (filteredWorkflows.length === 0) {
+                list.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            list.style.display = 'block';
+            emptyState.style.display = 'none';
+            
+            list.innerHTML = filteredWorkflows.map(workflow => createWorkflowItem(workflow)).join('');
+        }
+
+        function createWorkflowItem(workflow) {
+            const components = workflow.components || [];
+            const componentTags = components.slice(0, 8).map(comp => {
+                const data = componentData[comp.component];
+                return data ? `<span class="component-tag">${data.name}</span>` : '';
+            }).join('');
+            
+            const moreCount = components.length > 8 ? components.length - 8 : 0;
+            const updatedDate = new Date(workflow.updatedAt).toLocaleDateString();
+            const isActive = workflow.active;
+            const statusClass = isActive ? 'active' : 'disabled';
+            const statusText = isActive ? 'Active' : 'Disabled';
+            const itemClass = isActive ? '' : ' inactive';
+            
+            return `
+                <div class="workflow-item${itemClass}" onclick="editWorkflow(${workflow.id})">
+                    <div class="workflow-header">
+                        <div class="workflow-title-section">
+                            <h3 class="workflow-title">${workflow.name}</h3>
+                        </div>
+                        <div class="workflow-controls" onclick="event.stopPropagation()">
+                            <span class="workflow-status ${statusClass}">${statusText}</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" ${workflow.active ? 'checked' : ''} 
+                                       onchange="toggleWorkflow(${workflow.id}, this.checked, '${workflow.name}')">
+                                <span class="slider"></span>
+                            </label>
+                            <div class="workflow-actions">
+                                <button class="btn-sm btn-edit" onclick="editWorkflow(${workflow.id})">Edit</button>
+                                <button class="btn-sm btn-delete" onclick="deleteWorkflow(${workflow.id})">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workflow-meta">
+                        ${components.length} components • Updated ${updatedDate}
+                    </div>
+                    <div class="workflow-components">
+                        ${componentTags}
+                        ${moreCount > 0 ? `<span class="component-tag">+${moreCount} more</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function editWorkflow(workflowId) {
+            window.location.href = `workflow-editor.html?id=${workflowId}`;
+        }
+
+        function deleteWorkflow(workflowId) {
+            if (confirm('Are you sure you want to delete this workflow?')) {
+                allWorkflows = allWorkflows.filter(w => w.id !== workflowId);
+                localStorage.setItem('workflows', JSON.stringify(allWorkflows));
+                
+                // Update filtered workflows
+                filteredWorkflows = filteredWorkflows.filter(w => w.id !== workflowId);
+                renderWorkflows();
+            }
+        }
+
+        function filterWorkflows() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredWorkflows = [...allWorkflows];
+            } else {
+                filteredWorkflows = allWorkflows.filter(workflow => 
+                    workflow.name.toLowerCase().includes(searchTerm) ||
+                    workflow.components.some(comp => 
+                        comp.name.toLowerCase().includes(searchTerm)
+                    )
+                );
+            }
+            
+            renderWorkflows();
+        }
+
+        // Modal and Toggle Functions
+        let pendingToggle = null;
+
+        function toggleWorkflow(workflowId, isChecked, workflowName) {
+            if (isChecked) {
+                // Show confirmation modal for activation
+                pendingToggle = { workflowId, isChecked, workflowName };
+                document.getElementById('modalTitle').textContent = 'Activate Workflow';
+                document.getElementById('modalBody').textContent = 
+                    `This will turn "${workflowName}" on in the mobile app and be accessible by your users.`;
+                document.getElementById('confirmModal').style.display = 'block';
+            } else {
+                // Deactivate immediately without confirmation
+                updateWorkflowStatus(workflowId, false);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (pendingToggle) {
+                // Reset the toggle switch
+                const checkbox = document.querySelector(`input[onchange*="${pendingToggle.workflowId}"]`);
+                if (checkbox) {
+                    checkbox.checked = !pendingToggle.isChecked;
+                }
+                pendingToggle = null;
+            }
+        }
+
+        function confirmToggle() {
+            if (pendingToggle) {
+                updateWorkflowStatus(pendingToggle.workflowId, pendingToggle.isChecked);
+                pendingToggle = null;
+            }
+            closeModal();
+        }
+
+        function updateWorkflowStatus(workflowId, isActive) {
+            const workflowIndex = allWorkflows.findIndex(w => w.id === workflowId);
+            if (workflowIndex !== -1) {
+                allWorkflows[workflowIndex].active = isActive;
+                allWorkflows[workflowIndex].updatedAt = new Date().toISOString();
+                localStorage.setItem('workflows', JSON.stringify(allWorkflows));
+                
+                // Update filtered workflows
+                const filteredIndex = filteredWorkflows.findIndex(w => w.id === workflowId);
+                if (filteredIndex !== -1) {
+                    filteredWorkflows[filteredIndex].active = isActive;
+                }
+                
+                renderWorkflows();
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html> 
